@@ -1,0 +1,24 @@
+# ============================================================
+#  Bug Bounty Toolkit — Caddyfile (reverse proxy com HTTPS)
+#
+#  Instalação do Caddy:
+#    sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https
+#    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | \
+#      sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+#    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | \
+#      sudo tee /etc/apt/sources.list.d/caddy-stable.list
+#    sudo apt update && sudo apt install caddy -y
+#
+#  Uso:
+#    sudo cp deploy/Caddyfile /etc/caddy/Caddyfile
+#    # edite o domínio abaixo antes de copiar
+#    sudo systemctl reload caddy
+#
+#  Sem domínio ainda? Troque o bloco por ":443" com TLS interno,
+#  ou por ":80" (sem TLS) apenas para testes — nunca em produção,
+#  já que a API trafega o API_TOKEN no header.
+# ============================================================
+
+seu-dominio.com {
+    reverse_proxy localhost:8080
+}
