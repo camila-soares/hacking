@@ -2,109 +2,858 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SecuForge — Bug Bounty Toolkit</title>
-<meta name="description" content="Toolkit de recon e bug bounty para testes de segurança autorizados.">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bug Bounty Toolkit</title>
 <style>
-  :root {
-    --bg: #0b0f14;
-    --surface: #121821;
-    --border: #1f2937;
-    --text: #e5e7eb;
-    --muted: #9ca3af;
-    --accent: #22d3ee;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.6;
-  }
-  .wrap {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 64px 20px;
-  }
-  .badge {
-    display: inline-block;
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 4px 12px;
-    margin-bottom: 24px;
-  }
-  h1 {
-    font-size: 32px;
-    margin: 0 0 12px;
-  }
-  p.lead {
-    color: var(--muted);
-    font-size: 17px;
-    margin: 0 0 40px;
-  }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 16px;
-  }
-  .card h2 {
-    font-size: 16px;
-    margin: 0 0 8px;
-  }
-  .card p {
-    color: var(--muted);
-    margin: 0;
-    font-size: 14px;
-  }
-  .notice {
-    margin-top: 40px;
-    padding: 16px 20px;
-    border-radius: 8px;
-    background: rgba(34, 211, 238, 0.08);
-    border: 1px solid rgba(34, 211, 238, 0.2);
-    font-size: 14px;
-    color: var(--muted);
-  }
-  footer {
-    margin-top: 48px;
-    font-size: 13px;
-    color: var(--muted);
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0f0f23;
+  --surface:  #1a1a2e;
+  --surface2: #16213e;
+  --border:   #2d2d4e;
+  --text:     #ecf0f1;
+  --muted:    #7f8c8d;
+  --red:      #e74c3c;
+  --orange:   #e67e22;
+  --green:    #27ae60;
+  --blue:     #3498db;
+  --cyan:     #00d4ff;
+  --purple:   #9b59b6;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* ── layout ── */
+.layout { display: flex; min-height: 100vh; }
+
+/* sidebar */
+.sidebar {
+  width: 240px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 10;
+}
+.sidebar-logo {
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo h1 { font-size: 14px; color: var(--cyan); letter-spacing: 1px; text-transform: uppercase; }
+.sidebar-logo p  { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.nav { padding: 12px 0; flex: 1; overflow-y: auto; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 14px;
+  border-left: 3px solid transparent;
+  transition: all .15s;
+  user-select: none;
+}
+.nav-item:hover  { background: var(--surface2); color: var(--text); }
+.nav-item.active { border-left-color: var(--cyan); color: var(--cyan); background: var(--surface2); }
+.nav-item .icon  { font-size: 16px; width: 20px; text-align: center; }
+
+/* main */
+.main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+.topbar {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.topbar h2 { font-size: 18px; }
+.topbar .badge {
+  background: var(--surface2); color: var(--muted);
+  font-size: 12px; padding: 4px 10px; border-radius: 20px;
+}
+.content { padding: 24px; flex: 1; }
+
+/* ── novo scan ── */
+.scan-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 640px;
+}
+.scan-form h3 { margin-bottom: 20px; color: var(--cyan); font-size: 15px; }
+.form-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.form-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 200px; }
+label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+input, select {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color .15s;
+}
+input:focus, select:focus { border-color: var(--cyan); }
+select option { background: var(--surface2); }
+.btn {
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity .15s, transform .1s;
+}
+.btn:hover   { opacity: .88; }
+.btn:active  { transform: scale(.97); }
+.btn-primary { background: var(--cyan); color: var(--bg); }
+.btn-danger  { background: var(--red); color: #fff; }
+.btn-ghost   { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.warn-box {
+  background: #1c0a00; border: 1px solid var(--orange);
+  border-radius: 8px; padding: 10px 14px;
+  font-size: 12px; color: var(--orange); margin-top: 16px;
+}
+
+/* ── cards de scan ── */
+.scans-grid { display: flex; flex-direction: column; gap: 12px; }
+.scan-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex; align-items: center; gap: 16px;
+  transition: border-color .15s;
+}
+.scan-card:hover { border-color: var(--cyan); }
+.scan-card .info { flex: 1; }
+.scan-card .dominio { font-size: 15px; font-weight: 600; }
+.scan-card .meta   { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.scan-card .actions { display: flex; gap: 8px; }
+
+.badge-status {
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .5px; flex-shrink: 0;
+}
+.badge-rodando  { background: #1a3a5c; color: var(--blue); }
+.badge-concluido{ background: #0d3320; color: var(--green); }
+.badge-erro     { background: #3a1a1a; color: var(--red); }
+
+/* ── terminal de log ── */
+.terminal-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  height: calc(100vh - 160px);
+  display: flex; flex-direction: column;
+}
+.terminal-header {
+  background: var(--surface2);
+  padding: 10px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.terminal-dots span {
+  display: inline-block; width: 10px; height: 10px;
+  border-radius: 50%; margin-right: 5px;
+}
+.terminal-body {
+  flex: 1; overflow-y: auto; padding: 14px 16px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.log-line { white-space: pre-wrap; word-break: break-all; }
+.log-ok    { color: var(--green); }
+.log-info  { color: var(--cyan); }
+.log-warn  { color: var(--orange); }
+.log-error { color: var(--red); }
+.log-plain { color: #a0a0b0; }
+
+/* ── tools ── */
+.tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.tool-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.tool-card .tname { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.tool-card .tver  { font-size: 11px; color: var(--muted); font-family: monospace; }
+.dot-ok  { color: var(--green); }
+.dot-err { color: var(--red); }
+
+/* ── modal ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+}
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 90vw; max-width: 1100px;
+  height: 90vh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.modal-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--surface2);
+}
+.modal-body { flex: 1; overflow: hidden; }
+.modal-body iframe { width: 100%; height: 100%; border: none; }
+.modal-close {
+  background: none; border: none; color: var(--muted);
+  font-size: 20px; cursor: pointer; line-height: 1;
+}
+.modal-close:hover { color: var(--text); }
+
+/* ── spinner ── */
+.spinner {
+  width: 14px; height: 14px; border: 2px solid var(--border);
+  border-top-color: var(--cyan); border-radius: 50%;
+  animation: spin .7s linear infinite; display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── util ── */
+.hidden { display: none !important; }
+.mt8 { margin-top: 8px; }
+.mt16 { margin-top: 16px; }
+.empty { text-align: center; color: var(--muted); padding: 48px 0; font-size: 14px; }
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <span class="badge">Security Tooling</span>
-    <h1>SecuForge — Bug Bounty Toolkit</h1>
-    <p class="lead">Conjunto de ferramentas de recon e testes de segurança, para uso em engajamentos autorizados de bug bounty e pentest.</p>
+<div class="layout">
 
-    <div class="card">
-      <h2>Recon automatizado</h2>
-      <p>Subfinder, httpx, nuclei, gau, waybackurls, ffuf e dalfox integrados em um pipeline único.</p>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>🔍 BB Toolkit</h1>
+      <p>Bug Bounty Toolkit</p>
     </div>
-    <div class="card">
-      <h2>Interface web</h2>
-      <p>API e painel para acompanhar scans e resultados em tempo real.</p>
-    </div>
-    <div class="card">
-      <h2>Deploy self-hosted</h2>
-      <p>Empacotado via Docker Compose, projetado para rodar em VPS próprio com autenticação por token.</p>
+    <nav class="nav">
+      <div class="nav-item active" onclick="navegar('novo-scan')">
+        <span class="icon">＋</span> Novo Scan
+      </div>
+      <div class="nav-item" onclick="navegar('scans')">
+        <span class="icon">📋</span> Scans
+        <span id="badge-total" style="margin-left:auto;background:#1a3a5c;color:#3498db;padding:1px 7px;border-radius:10px;font-size:11px"></span>
+      </div>
+      <div class="nav-item" onclick="navegar('terminal')">
+        <span class="icon">🖥️</span> Terminal
+      </div>
+      <div class="nav-item" onclick="navegar('tools')">
+        <span class="icon">🛠️</span> Ferramentas
+      </div>
+      <div class="nav-item" onclick="navegar('batch')">
+        <span class="icon">⚡</span> Multi-alvo
+      </div>
+      <div class="nav-item" onclick="navegar('schedules')">
+        <span class="icon">🕐</span> Agendamentos
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <h2 id="topbar-title">Novo Scan</h2>
+      <span class="badge" id="topbar-info">localhost:8080</span>
+      <span id="ngrok-badge" style="display:none;background:#0d3320;color:#27ae60;
+        font-size:11px;padding:3px 10px;border-radius:10px;cursor:pointer"
+        onclick="abrirNgrok()">🌐 URL pública</span>
     </div>
 
-    <div class="notice">
-      Esta é uma página informativa — a ferramenta em si roda de forma self-hosted, não é servida a partir deste domínio.
-    </div>
+    <div class="content">
 
-    <footer>
-      Uso restrito a testes autorizados de segurança.
-    </footer>
+      <!-- ── NOVO SCAN ── -->
+      <div id="page-novo-scan">
+        <div class="scan-form">
+          <h3>🎯 Iniciar Reconhecimento</h3>
+          <div class="form-row">
+            <div class="form-group" style="flex:2">
+              <label>Alvo — domínio ou URL</label>
+              <input id="input-dominio" type="text" placeholder="alvo.com  ou  https://alvo.com/api/v1/" autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label>Modo</label>
+              <select id="select-modo">
+                <option value="rapido">⚡ Rápido (sem nuclei)</option>
+                <option value="completo">🔍 Completo</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:16px;display:flex;gap:10px;align-items:center">
+            <button class="btn btn-primary" onclick="iniciarScan()" id="btn-iniciar">
+              Iniciar Scan
+            </button>
+            <span id="scan-status-msg" style="font-size:13px;color:var(--muted)"></span>
+          </div>
+          <div class="warn-box">
+            ⚠️ Use APENAS em alvos com autorização escrita.
+            Invasão sem autorização é crime — art. 154-A CP.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── LISTA DE SCANS ── -->
+      <div id="page-scans" class="hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <span style="color:var(--muted);font-size:13px">Histórico de scans desta sessão</span>
+          <button class="btn btn-ghost" onclick="carregarScans()" style="font-size:12px;padding:6px 14px">↻ Atualizar</button>
+        </div>
+        <div id="scans-list" class="scans-grid">
+          <div class="empty">Nenhum scan ainda. Inicie um novo scan.</div>
+        </div>
+      </div>
+
+      <!-- ── TERMINAL ── -->
+      <div id="page-terminal" class="hidden">
+        <div class="terminal-wrap">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <span style="background:#e74c3c"></span>
+              <span style="background:#f39c12"></span>
+              <span style="background:#27ae60"></span>
+            </div>
+            <span id="terminal-title" style="color:var(--muted)">Aguardando scan...</span>
+            <button class="btn btn-ghost" onclick="limparTerminal()" style="font-size:11px;padding:4px 10px">Limpar</button>
+          </div>
+          <div id="terminal-body" class="terminal-body">
+            <div class="log-plain">$ aguardando início de um scan...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FERRAMENTAS ── -->
+      <div id="page-tools" class="hidden">
+        <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+          <span style="color:var(--muted);font-size:13px">Status das ferramentas instaladas no container</span>
+          <button class="btn btn-ghost" onclick="carregarTools()" style="font-size:12px;padding:6px 14px">↻ Verificar</button>
+        </div>
+        <div id="tools-grid" class="tools-grid">
+          <div class="empty">Clique em "Verificar" para checar as ferramentas.</div>
+        </div>
+      </div>
+
+      <!-- ── MULTI-ALVO (BATCH) ── -->
+      <div id="page-batch" class="hidden">
+        <div class="scan-form">
+          <h3>⚡ Scan em múltiplos alvos</h3>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Alvos — um por linha (domínio ou URL)</label>
+            <textarea id="batch-alvos" rows="5"
+              style="width:100%;background:var(--s2);border:1px solid var(--b);
+                     border-radius:5px;color:var(--t);padding:8px;font-size:13px;
+                     font-family:monospace;resize:vertical"
+              placeholder="alvo1.com&#10;https://alvo2.com/api/&#10;alvo3.com.br"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Modo</label>
+              <select id="batch-modo">
+                <option value="rapido">⚡ Rápido</option>
+                <option value="completo">🔍 Completo</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Paralelos (máx 5)</label>
+              <select id="batch-concorrencia">
+                <option value="2">2 simultâneos</option>
+                <option value="3" selected>3 simultâneos</option>
+                <option value="5">5 simultâneos</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+            <button class="btn btn-primary" onclick="iniciarBatch()">Iniciar batch</button>
+            <span id="batch-msg" style="font-size:13px;color:var(--m)"></span>
+          </div>
+          <div class="warn-box">⚠️ Só alvos com autorização escrita. Art. 154-A CP.</div>
+        </div>
+        <div style="margin-top:20px">
+          <div style="font-size:11px;color:var(--m);text-transform:uppercase;
+               letter-spacing:.5px;margin-bottom:10px">Batches recentes</div>
+          <div id="batches-list" class="scans-grid"></div>
+        </div>
+      </div>
+
+      <!-- ── AGENDAMENTOS ── -->
+      <div id="page-schedules" class="hidden">
+        <div class="scan-form" style="margin-bottom:20px">
+          <h3>🕐 Agendar scan recorrente</h3>
+          <div class="form-row">
+            <div class="form-group" style="flex:2">
+              <label>Alvo</label>
+              <input id="sched-alvo" type="text" placeholder="alvo.com" />
+            </div>
+            <div class="form-group">
+              <label>Modo</label>
+              <select id="sched-modo">
+                <option value="rapido">⚡ Rápido</option>
+                <option value="completo">🔍 Completo</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row" style="margin-top:10px">
+            <div class="form-group" style="flex:2">
+              <label>Expressão cron</label>
+              <input id="sched-cron" type="text" placeholder="0 9 * * 1" />
+            </div>
+            <div class="form-group">
+              <label>Nome</label>
+              <input id="sched-nome" type="text" placeholder="Opcional" />
+            </div>
+          </div>
+          <div style="margin-top:6px;font-size:11px;color:var(--m)">
+            Exemplos: <code style="background:var(--s2);padding:1px 5px;border-radius:3px">0 9 * * 1</code> toda segunda às 9h &nbsp;
+            <code style="background:var(--s2);padding:1px 5px;border-radius:3px">0 */6 * * *</code> a cada 6h &nbsp;
+            <code style="background:var(--s2);padding:1px 5px;border-radius:3px">0 8 * * *</code> todo dia às 8h
+          </div>
+          <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+            <button class="btn btn-primary" onclick="criarSchedule()">Agendar</button>
+            <span id="sched-msg" style="font-size:13px;color:var(--m)"></span>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:11px;color:var(--m);text-transform:uppercase;letter-spacing:.5px">
+              Agendamentos ativos
+            </div>
+            <button class="btn btn-ghost" onclick="carregarSchedules()"
+              style="font-size:11px;padding:4px 10px">↻ Atualizar</button>
+          </div>
+          <div id="schedules-list" class="scans-grid"></div>
+        </div>
+      </div>
+
+    </div><!-- content -->
+  </main><!-- main -->
+</div><!-- layout -->
+
+<!-- MODAL RELATÓRIO -->
+<div id="modal-report" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="modal-title" style="font-size:14px;font-weight:600">Relatório</span>
+      <button class="modal-close" onclick="fecharModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <iframe id="modal-iframe" src="about:blank"></iframe>
+    </div>
   </div>
+</div>
+
+<script>
+// ── estado ─────────────────────────────────────────────────
+let paginaAtual = 'novo-scan';
+let scanAtivo   = null;   // scan_id sendo exibido no terminal
+let sseConexao  = null;   // EventSource ativo
+let intervaloScans = null;
+
+// ── navegação ───────────────────────────────────────────────
+function navegar(pagina) {
+  paginaAtual = pagina;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('[onclick]').forEach(el => {
+    if (el.getAttribute('onclick') === `navegar('${pagina}')`) el.classList.add('active');
+  });
+  document.querySelectorAll('[id^="page-"]').forEach(el => el.classList.add('hidden'));
+  document.getElementById(`page-${pagina}`)?.classList.remove('hidden');
+
+  const titulos = {
+    'novo-scan': 'Novo Scan',
+    'scans':     'Histórico de Scans',
+    'terminal':  'Terminal',
+    'tools':     'Ferramentas'
+  };
+  document.getElementById('topbar-title').textContent = titulos[pagina] || pagina;
+
+  if (pagina === 'scans')   carregarScans();
+  if (pagina === 'tools')   carregarTools();
+}
+
+// ── iniciar scan ────────────────────────────────────────────
+async function iniciarScan() {
+  const dominio = document.getElementById('input-dominio').value.trim();
+  const modo    = document.getElementById('select-modo').value;
+  const btn     = document.getElementById('btn-iniciar');
+  const msg     = document.getElementById('scan-status-msg');
+
+  if (!dominio) {
+    msg.textContent = '⚠ Informe um domínio.';
+    msg.style.color = 'var(--orange)';
+    return;
+  }
+
+  btn.disabled    = true;
+  btn.textContent = 'Iniciando...';
+  msg.textContent = '';
+
+  try {
+    const res  = await fetch('/api/scans', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ alvo: dominio, modo }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      msg.textContent = `Erro: ${data.erro}`;
+      msg.style.color = 'var(--orange)';
+      return;
+    }
+
+    const info = data.tipo === 'url'
+      ? `URL: ${data.url_base}`
+      : `Domínio: ${data.dominio}`;
+    msg.textContent = `✔ Iniciado — ${info} — ID: ${data.scan_id}`;
+    msg.style.color = 'var(--green)';
+
+    // vai pro terminal e começa a exibir o log
+    navegar('terminal');
+    iniciarTerminal(data.scan_id, dominio);
+
+    document.getElementById('input-dominio').value = '';
+
+  } catch(e) {
+    msg.textContent = 'Erro de conexão com a API.';
+    msg.style.color = 'var(--red)';
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Iniciar Scan';
+  }
+}
+
+// tecla Enter no input de domínio
+document.getElementById('input-dominio')
+  .addEventListener('keydown', e => { if (e.key === 'Enter') iniciarScan(); });
+
+// ── terminal ────────────────────────────────────────────────
+function iniciarTerminal(scanId, dominio) {
+  // encerra SSE anterior
+  if (sseConexao) { sseConexao.close(); sseConexao = null; }
+
+  scanAtivo = scanId;
+  limparTerminal();
+  document.getElementById('terminal-title').textContent = `scan ${scanId} — ${dominio}`;
+
+  sseConexao = new EventSource(`/api/scans/${scanId}/log`);
+  sseConexao.onmessage = (ev) => {
+    const data = JSON.parse(ev.data);
+    if (data.fim) { sseConexao.close(); return; }
+    if (data.linha !== undefined) adicionarLinhaTerminal(data.linha);
+  };
+  sseConexao.onerror = () => sseConexao.close();
+}
+
+function adicionarLinhaTerminal(linha) {
+  const body = document.getElementById('terminal-body');
+  const div  = document.createElement('div');
+  div.className = 'log-line ' + classificarLinha(linha);
+  div.textContent = linha;
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+
+function classificarLinha(linha) {
+  if (linha.includes('[✔]') || linha.includes('[✓]')) return 'log-ok';
+  if (linha.includes('[→]') || linha.includes('[*]')) return 'log-info';
+  if (linha.includes('[!]') || linha.includes('[?]')) return 'log-warn';
+  if (linha.includes('[✘]') || linha.includes('erro') || linha.includes('ERROR')) return 'log-error';
+  return 'log-plain';
+}
+
+function limparTerminal() {
+  document.getElementById('terminal-body').innerHTML =
+    '<div class="log-plain">$ terminal limpo</div>';
+}
+
+// ── lista de scans ──────────────────────────────────────────
+async function carregarScans() {
+  const container = document.getElementById('scans-list');
+  container.innerHTML = '<div class="empty"><div class="spinner"></div></div>';
+
+  try {
+    const res   = await fetch('/api/scans');
+    const scans = await res.json();
+
+    document.getElementById('badge-total').textContent = scans.length || '';
+
+    if (!scans.length) {
+      container.innerHTML = '<div class="empty">Nenhum scan ainda. Inicie um novo scan.</div>';
+      return;
+    }
+
+    container.innerHTML = scans.map(s => `
+      <div class="scan-card">
+        <div>
+          <span class="badge-status badge-${s.status}">${s.status}</span>
+        </div>
+        <div class="info">
+          <div class="dominio">${esc(s.dominio)}</div>
+          <div class="meta">
+            ID: ${esc(s.id)} &nbsp;|&nbsp; Modo: ${esc(s.modo)}
+            &nbsp;|&nbsp; Início: ${formatarData(s.inicio)}
+            ${s.fim ? `&nbsp;|&nbsp; Fim: ${formatarData(s.fim)}` : ''}
+          </div>
+        </div>
+        <div class="actions">
+          ${s.status === 'rodando' ? `
+            <button class="btn btn-ghost" onclick="verTerminal('${esc(s.id)}','${esc(s.dominio)}')"
+              style="font-size:12px;padding:6px 12px">
+              <div class="spinner" style="vertical-align:middle;margin-right:4px"></div> Log
+            </button>` : ''}
+          ${s.status === 'concluido' ? `
+            <button class="btn btn-primary" onclick="verRelatorio('${esc(s.id)}','${esc(s.dominio)}')"
+              style="font-size:12px;padding:6px 12px">📊 Relatório</button>` : ''}
+          <button class="btn btn-ghost" onclick="deletarScan('${esc(s.id)}')"
+            style="font-size:12px;padding:6px 10px;color:var(--red)">✕</button>
+        </div>
+      </div>`).join('');
+
+  } catch(e) {
+    container.innerHTML = '<div class="empty" style="color:var(--red)">Erro ao carregar scans.</div>';
+  }
+}
+
+function verTerminal(scanId, dominio) {
+  navegar('terminal');
+  if (scanId !== scanAtivo) iniciarTerminal(scanId, dominio);
+}
+
+async function deletarScan(scanId) {
+  if (!confirm('Remover este scan do histórico?')) return;
+  await fetch(`/api/scans/${scanId}`, { method: 'DELETE' });
+  carregarScans();
+}
+
+// ── relatório HTML ──────────────────────────────────────────
+function verRelatorio(scanId, dominio) {
+  document.getElementById('modal-title').textContent = `Relatório — ${dominio}`;
+  document.getElementById('modal-iframe').src = `/api/scans/${scanId}/report`;
+  document.getElementById('modal-report').classList.remove('hidden');
+}
+
+function fecharModal() {
+  document.getElementById('modal-report').classList.add('hidden');
+  document.getElementById('modal-iframe').src = 'about:blank';
+}
+
+// fechar modal clicando fora
+document.getElementById('modal-report').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) fecharModal();
+});
+
+// ── ferramentas ─────────────────────────────────────────────
+async function carregarTools() {
+  const grid = document.getElementById('tools-grid');
+  grid.innerHTML = '<div class="empty"><div class="spinner"></div> Verificando...</div>';
+
+  try {
+    const res   = await fetch('/api/tools');
+    const tools = await res.json();
+    grid.innerHTML = Object.entries(tools).map(([nome, info]) => `
+      <div class="tool-card">
+        <div class="tname">
+          <span class="${info.ok ? 'dot-ok' : 'dot-err'}">${info.ok ? '●' : '○'}</span>
+          &nbsp;${esc(nome)}
+        </div>
+        <div class="tver">${info.versao ? esc(info.versao.substring(0, 60)) : 'não instalado'}</div>
+      </div>`).join('');
+  } catch(e) {
+    grid.innerHTML = '<div class="empty" style="color:var(--red)">Erro ao verificar ferramentas.</div>';
+  }
+}
+
+// ── utilitários ─────────────────────────────────────────────
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
+}
+
+function formatarData(ts) {
+  if (!ts || ts.length < 8) return ts || '';
+  // "20260827_143000" → "27/08/2026 14:30"
+  const [d, t] = ts.split('_');
+  const ano = d.slice(0,4), mes = d.slice(4,6), dia = d.slice(6,8);
+  const hora = t ? `${t.slice(0,2)}:${t.slice(2,4)}` : '';
+  return `${dia}/${mes}/${ano} ${hora}`;
+}
+
+// ── batch ────────────────────────────────────────────────────
+async function iniciarBatch() {
+  const texto = document.getElementById('batch-alvos').value.trim();
+  const modo  = document.getElementById('batch-modo').value;
+  const conc  = document.getElementById('batch-concorrencia').value;
+  const msg   = document.getElementById('batch-msg');
+
+  const alvos = texto.split('\n').map(l => l.trim()).filter(Boolean);
+  if (!alvos.length) { msg.textContent = '⚠ Informe pelo menos um alvo.'; return; }
+
+  msg.textContent = `Iniciando ${alvos.length} scans...`;
+  msg.style.color = 'var(--cyan)';
+
+  try {
+    const res  = await fetch('/api/scans/batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ alvos, modo, concorrencia: parseInt(conc) }),
+    });
+    const data = await res.json();
+    if (!res.ok) { msg.textContent = `Erro: ${data.erro}`; return; }
+    msg.textContent = `✔ Batch ${data.batch_id} — ${data.total} scans iniciados`;
+    msg.style.color = 'var(--green)';
+    carregarBatches();
+  } catch(e) {
+    msg.textContent = 'Erro de conexão.';
+    msg.style.color = 'var(--red)';
+  }
+}
+
+async function carregarBatches() {
+  const container = document.getElementById('batches-list');
+  if (!container) return;
+  try {
+    const res    = await fetch('/api/batches');
+    const batches = await res.json();
+    if (!batches.length) {
+      container.innerHTML = '<div class="empty">Nenhum batch ainda.</div>';
+      return;
+    }
+    container.innerHTML = batches.map(b => `
+      <div class="scan-card">
+        <span class="badge-status badge-${b.status === 'concluido' ? 'concluido' : 'rodando'}">
+          ${esc(b.status)}
+        </span>
+        <div class="info">
+          <div class="dominio">${esc(b.alvos.join(', ').substring(0, 60))}${b.alvos.length > 2 ? '...' : ''}</div>
+          <div class="meta">${b.alvos.length} alvos · ${esc(b.modo)} · ${b.concorrencia} paralelos · ${formatarData(b.inicio)}</div>
+        </div>
+        <button class="btn btn-ghost" onclick="navegar('scans')"
+          style="font-size:11px;padding:5px 10px">Ver scans</button>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+// ── schedules ─────────────────────────────────────────────────
+async function criarSchedule() {
+  const alvo = document.getElementById('sched-alvo').value.trim();
+  const modo = document.getElementById('sched-modo').value;
+  const cron = document.getElementById('sched-cron').value.trim();
+  const nome = document.getElementById('sched-nome').value.trim();
+  const msg  = document.getElementById('sched-msg');
+
+  if (!alvo) { msg.textContent = '⚠ Informe o alvo.'; return; }
+  if (!cron) { msg.textContent = '⚠ Informe a expressão cron.'; return; }
+
+  try {
+    const res  = await fetch('/api/schedules', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ alvo, modo, cron, nome }),
+    });
+    const data = await res.json();
+    if (!res.ok) { msg.textContent = `Erro: ${data.erro}`; msg.style.color='var(--red)'; return; }
+    msg.textContent = `✔ Agendado — próxima execução: ${data.proxima}`;
+    msg.style.color = 'var(--green)';
+    carregarSchedules();
+  } catch(e) {
+    msg.textContent = 'Erro de conexão.';
+  }
+}
+
+async function carregarSchedules() {
+  const container = document.getElementById('schedules-list');
+  if (!container) return;
+  try {
+    const res   = await fetch('/api/schedules');
+    const lista = await res.json();
+    if (!lista.length) {
+      container.innerHTML = '<div class="empty">Nenhum agendamento ativo.</div>';
+      return;
+    }
+    container.innerHTML = lista.map(s => `
+      <div class="scan-card">
+        <span class="badge-status badge-concluido">ativo</span>
+        <div class="info">
+          <div class="dominio">${esc(s.nome || s.alvo)}</div>
+          <div class="meta">
+            ${esc(s.alvo)} · ${esc(s.modo)} · cron: <code>${esc(s.cron)}</code>
+            · próxima: ${esc(s.proxima)}
+            ${s.ultima_execucao ? '· última: '+formatarData(s.ultima_execucao) : ''}
+          </div>
+        </div>
+        <button class="btn btn-ghost" onclick="deletarSchedule('${esc(s.id)}')"
+          style="font-size:11px;padding:5px 10px;color:var(--red)">Remover</button>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+async function deletarSchedule(id) {
+  if (!confirm('Remover este agendamento?')) return;
+  await fetch(`/api/schedules/${id}`, { method: 'DELETE' });
+  carregarSchedules();
+}
+
+// ── ngrok ─────────────────────────────────────────────────────
+let _ngrokUrl = null;
+
+async function verificarNgrok() {
+  try {
+    const res  = await fetch('/api/ngrok-url');
+    const data = await res.json();
+    const badge = document.getElementById('ngrok-badge');
+    if (data.url) {
+      _ngrokUrl = data.url;
+      badge.style.display = 'inline-block';
+      badge.title = data.url;
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch(e) {}
+}
+
+function abrirNgrok() {
+  if (_ngrokUrl) {
+    navigator.clipboard.writeText(_ngrokUrl).catch(() => {});
+    alert(`URL pública copiada:\n${_ngrokUrl}`);
+  }
+}
+
+// polling do ngrok a cada 10s
+verificarNgrok();
+setInterval(verificarNgrok, 10000);
+
+// atualizar badge de scans a cada 5s
+setInterval(async () => {
+  try {
+    const r = await fetch('/api/scans');
+    const s = await r.json();
+    document.getElementById('badge-total').textContent = s.length || '';
+    if (paginaAtual === 'scans')     carregarScans();
+    if (paginaAtual === 'batch')     carregarBatches();
+    if (paginaAtual === 'schedules') carregarSchedules();
+  } catch {}
+}, 5000);
+</script>
 </body>
 </html>
