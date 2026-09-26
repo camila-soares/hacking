@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SecuForge Labs — Todas as Telas</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f23;--surface:#1a1a2e;--surface2:#16213e;--border:#2d2d4e;
+  --text:#ecf0f1;--muted:#7f8c8d;--red:#e74c3c;--orange:#e67e22;
+  --green:#27ae60;--blue:#3498db;--cyan:#00d4ff;--purple:#9b59b6;
+}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;padding:16px}
+
+/* section dividers */
+.screen-section{margin-bottom:40px;border:2px solid var(--border);border-radius:16px;overflow:hidden}
+.screen-header{background:var(--cyan);color:var(--bg);padding:12px 20px;font-size:15px;font-weight:700;letter-spacing:1px}
+.screen-body{background:var(--bg);min-height:300px}
+
+/* toc */
+.toc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:30px}
+.toc h2{font-size:16px;color:var(--cyan);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.toc a{display:block;color:var(--text);text-decoration:none;padding:6px 0;font-size:14px;border-bottom:1px solid var(--border)}
+.toc a:last-child{border-bottom:none}
+.toc a:hover{color:var(--cyan)}
+.toc .num{color:var(--cyan);font-weight:700;margin-right:8px;display:inline-block;width:22px}
+
+/* layout inside screens */
+.layout{display:flex;min-height:500px}
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column}
+.sidebar-logo{padding:16px 14px;border-bottom:1px solid var(--border)}
+.sidebar-logo h1{font-size:13px;color:var(--cyan);letter-spacing:1px;text-transform:uppercase}
+.sidebar-logo p{font-size:10px;color:var(--muted);margin-top:2px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 14px;color:var(--muted);font-size:13px;border-left:3px solid transparent}
+.nav-item.active{border-left-color:var(--cyan);color:var(--cyan);background:var(--surface2)}
+.nav-item .icon{font-size:14px;width:18px;text-align:center}
+.main{flex:1;display:flex;flex-direction:column}
+.topbar{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;justify-content:space-between;align-items:center}
+.topbar h2{font-size:16px}
+.topbar .badge{background:var(--surface2);color:var(--muted);font-size:11px;padding:3px 8px;border-radius:16px}
+.content{padding:20px}
+.sidebar-footer{margin-top:auto;padding:10px 14px;border-top:1px solid var(--border);font-size:9px;color:var(--muted)}
+
+/* form */
+.scan-form{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;max-width:650px}
+.scan-form h3{margin-bottom:16px;color:var(--cyan);font-size:14px}
+.form-row{display:flex;gap:10px;flex-wrap:wrap}
+.form-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:160px}
+label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+input,select,textarea{background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);padding:8px 10px;font-size:13px;outline:none;width:100%}
+.btn{padding:8px 18px;border-radius:5px;font-size:13px;font-weight:600;border:none;display:inline-block}
+.btn-primary{background:var(--cyan);color:var(--bg)}
+.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.warn-box{background:#1c0a00;border:1px solid var(--orange);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--orange);margin-top:14px}
+
+/* badges */
+.badge-status{padding:2px 8px;border-radius:16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.badge-rodando{background:#1a3a5c;color:var(--blue)}
+.badge-concluido{background:#0d3320;color:var(--green)}
+.badge-erro{background:#3a1a1a;color:var(--red)}
+
+/* scan cards */
+.scan-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.scan-card .info{flex:1}
+.scan-card .dominio{font-size:14px;font-weight:600}
+.scan-card .meta{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* dashboard */
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.dash-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.dash-card .dash-value{font-size:24px;font-weight:700;margin-bottom:2px}
+.dash-card .dash-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.dash-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px}
+.dash-section h4{font-size:12px;color:var(--cyan);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.dash-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
+.dash-bar-label{width:100px;text-align:right;color:var(--muted);font-size:11px}
+.dash-bar-track{flex:1;height:14px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.dash-bar-fill{height:100%;border-radius:3px}
+.dash-bar-count{width:30px;font-size:11px;color:var(--muted)}
+.dash-table{width:100%;border-collapse:collapse;font-size:12px}
+.dash-table th{text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border)}
+.dash-table td{padding:6px 8px;border-bottom:1px solid var(--border)}
+
+/* terminal */
+.terminal-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.terminal-header{background:var(--surface2);padding:8px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);font-size:12px}
+.terminal-dots span{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
+.terminal-body{padding:12px 14px;font-family:'Courier New',monospace;font-size:11.5px;line-height:1.6}
+.log-ok{color:var(--green)}.log-info{color:var(--cyan)}.log-warn{color:var(--orange)}.log-error{color:var(--red)}.log-plain{color:#a0a0b0}
+
+/* tools */
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.tool-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.tool-card .tname{font-size:13px;font-weight:600;margin-bottom:2px}
+.tool-card .tver{font-size:10px;color:var(--muted);font-family:monospace}
+.dot-ok{color:var(--green)}
+.cat-header{grid-column:1/-1;font-size:12px;color:var(--cyan);text-transform:uppercase;letter-spacing:.5px;padding:6px 0 2px;border-bottom:1px solid var(--border);margin-top:6px}
+
+/* login */
+.login-center{display:flex;align-items:center;justify-content:center;min-height:480px;background:var(--bg)}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px 28px;max-width:360px;width:100%;text-align:center}
+.login-box h1{font-size:18px;color:var(--cyan);text-transform:uppercase;letter-spacing:2px;margin-bottom:4px}
+.login-box .sub{font-size:11px;color:var(--muted);margin-bottom:22px}
+.login-box input{width:100%;margin-bottom:12px;text-align:center;font-family:monospace;font-size:14px;letter-spacing:2px;padding:10px}
+.login-box .btn{width:100%;margin-bottom:8px}
+.login-hint{margin-top:14px;font-size:10px;color:var(--muted);background:var(--surface2);border-radius:6px;padding:8px 10px;text-align:left;line-height:1.5}
+.login-hint code{background:var(--bg);padding:1px 4px;border-radius:3px;font-size:9px}
+.warn-footer{margin-top:16px;font-size:9px;color:var(--orange);border-top:1px solid var(--border);padding-top:10px;line-height:1.5}
+.shield{font-size:40px;margin-bottom:12px;display:block}
+
+/* activity bars */
+.activity-bars{display:flex;align-items:flex-end;gap:2px;height:60px}
+.activity-bars .bar{flex:1;background:var(--cyan);border-radius:2px 2px 0 0;min-width:3px}
+
+/* responsive */
+@media(max-width:600px){
+  .sidebar{width:50px}
+  .sidebar-logo p,.nav-item span:not(.icon){display:none}
+  .sidebar-logo h1{font-size:9px;letter-spacing:0}
+  .dash-grid{grid-template-columns:repeat(2,1fr)}
+  .tools-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc">
+  <h2>SecuForge Labs — Preview de Todas as Telas</h2>
+  <a href="#s1"><span class="num">1.</span> Login</a>
+  <a href="#s2"><span class="num">2.</span> Dashboard</a>
+  <a href="#s3"><span class="num">3.</span> Novo Scan</a>
+  <a href="#s4"><span class="num">4.</span> Scans (Historico)</a>
+  <a href="#s5"><span class="num">5.</span> Terminal</a>
+  <a href="#s6"><span class="num">6.</span> Ferramentas (27)</a>
+  <a href="#s7"><span class="num">7.</span> Multi-alvo (Batch)</a>
+  <a href="#s8"><span class="num">8.</span> Agendamentos</a>
+  <a href="#s9"><span class="num">9.</span> OSINT</a>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 1. LOGIN                               -->
+<!-- ═══════════════════════════════════════ -->
+<div class="screen-section" id="s1">
+  <div class="screen-header">Tela 1 — Login</div>
+  <div class="screen-body">
+    <div class="login-center">
+      <div class="login-box">
+        <span class="shield">&#128737;</span>
+        <h1>SecuForge Labs</h1>
+        <p class="sub">Bug Bounty Toolkit &mdash; Autenticacao</p>
+        <input type="password" placeholder="API Key" autocomplete="off" />
+        <div class="btn btn-primary" style="text-align:center;padding:10px">Entrar</div>
+        <div class="login-hint">
+          A API Key e exibida no terminal ao iniciar o container.<br><br>
+          Tambem disponivel em:<br>
+          <code>docker exec bb-toolkit cat /app/data/api.key</code><br>
+          <code>podman exec bb-toolkit cat /app/data/api.key</code>
+        </div>
+        <div class="warn-footer">
+          &#9888;&#65039; Use APENAS em alvos com autorizacao escrita.<br>
+          Art. 154-A CP (Lei 12.737/2012)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 2. DASHBOARD                           -->
+<!-- ═══════════════════════════════════════ -->
+<div class="screen-section" id="s2">
+  <div class="screen-header">Tela 2 — Dashboard (landing page)</div>
+  <div class="screen-body">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-logo"><h1>SecuForge Labs</h1><p>Bug Bounty Toolkit</p></div>
+        <div class="nav-item active"><span class="icon">&#128202;</span> <span>Dashboard</span></div>
+        <div class="nav-item"><span class="icon">+</span> <span>Novo Scan</span></div>
+        <div class="nav-item"><span class="icon">&#128203;</span> <span>Scans</span></div>
+        <div class="nav-item"><span class="icon">&#128421;</span> <span>Terminal</span></div>
+        <div class="nav-item"><span class="icon">&#128295;</span> <span>Ferramentas</span></div>
+        <div class="nav-item"><span class="icon">&#9889;</span> <span>Multi-alvo</span></div>
+        <div class="nav-item"><span class="icon">&#128336;</span> <span>Agendamentos</span></div>
+        <div class="nav-item"><span class="icon">&#127760;</span> <span>OSINT</span></div>
+        <div class="sidebar-footer">v3.0 · 27 ferramentas</div>
+      </aside>
+      <main class="main">
+        <div class="topbar"><h2>Dashboard</h2><span class="badge">localhost:8080</span></div>
+        <div class="content">
+          <div class="dash-grid">
+            <div class="dash-card"><div class="dash-value" style="color:var(--cyan)">47</div><div class="dash-label">Total Scans</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:var(--blue)">2</div><div class="dash-label">Rodando</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:var(--green)">38</div><div class="dash-label">Concluidos</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:var(--red)">7</div><div class="dash-label">Erros</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:var(--orange)">124</div><div class="dash-label">Vulns Total</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:var(--purple)">83s</div><div class="dash-label">Tempo Medio</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div class="dash-section">
+              <h4>Top Ferramentas</h4>
+              <div class="dash-bar-row"><div class="dash-bar-label">nuclei</div><div class="dash-bar-track"><div class="dash-bar-fill" style="width:100%;background:var(--cyan)"></div></div><div class="dash-bar-count">18</div></div>
+              <div class="dash-bar-row"><div class="dash-bar-label">nmap</div><div class="dash-bar-track"><div class="dash-bar-fill" style="width:72%;background:var(--cyan)"></div></div><div class="dash-bar-count">13</div></div>
+              <div class="dash-bar-row"><div class="dash-bar-label">ffuf</div><div class="dash-bar-track"><div class="dash-bar-fill" style="width:44%;background:var(--cyan)"></div></div><div class="dash-bar-count">8</div></div>
+              <div class="dash-bar-row"><div class="dash-bar-label">sqlmap</div><div class="dash-bar-track"><div class="dash-bar-fill" style="width:28%;background:var(--cyan)"></div></div><div class="dash-bar-count">5</div></div>
+              <div class="dash-bar-row"><div class="dash-bar-label">nikto</div><div class="dash-bar-track"><div class="dash-bar-fill" style="width:17%;background:var(--cyan)"></div></div><div class="dash-bar-count">3</div></div>
+            </div>
+            <div class="dash-section">
+              <h4>Top Alvos</h4>
+              <div class="dash-bar-row"><div class="dash-bar-label">dvwa.local</div><div class="dash-bar-track"><div class="dash-bar-fill" style="width:100%;background:var(--green)"></div></div><div class="dash-bar-count">14</div></div>
+              <div class="dash-bar-row"><div class="dash-bar-label">juiceshop.local</div><div class="dash-bar-track"><div class="dash-bar-fill" style="width:79%;background:var(--green)"></div></div><div class="dash-bar-count">11</div></div>
+              <div class="dash-bar-row"><div class="dash-bar-label">webgoat.local</div><div class="dash-bar-track"><div class="dash-bar-fill" style="width:57%;background:var(--green)"></div></div><div class="dash-bar-count">8</div></div>
+              <div class="dash-bar-row"><div class="dash-bar-label">metasploitable</div><div class="dash-bar-track"><div class="dash-bar-fill" style="width:36%;background:var(--green)"></div></div><div class="dash-bar-count">5</div></div>
+            </div>
+          </div>
+          <div class="dash-section">
+            <h4>Atividade (30 dias)</h4>
+            <div class="activity-bars">
+              <div class="bar" style="height:27%"></div><div class="bar" style="height:5%;opacity:.3"></div><div class="bar" style="height:67%"></div>
+              <div class="bar" style="height:40%"></div><div class="bar" style="height:13%"></div><div class="bar" style="height:5%;opacity:.3"></div>
+              <div class="bar" style="height:53%"></div><div class="bar" style="height:27%"></div><div class="bar" style="height:80%"></div>
+              <div class="bar" style="height:13%"></div><div class="bar" style="height:5%;opacity:.3"></div><div class="bar" style="height:40%"></div>
+              <div class="bar" style="height:27%"></div><div class="bar" style="height:67%"></div><div class="bar" style="height:5%;opacity:.3"></div>
+              <div class="bar" style="height:13%"></div><div class="bar" style="height:53%"></div><div class="bar" style="height:40%"></div>
+              <div class="bar" style="height:27%"></div><div class="bar" style="height:5%;opacity:.3"></div><div class="bar" style="height:13%"></div>
+              <div class="bar" style="height:40%"></div><div class="bar" style="height:67%"></div><div class="bar" style="height:27%"></div>
+              <div class="bar" style="height:5%;opacity:.3"></div><div class="bar" style="height:53%"></div><div class="bar" style="height:13%"></div>
+              <div class="bar" style="height:40%"></div><div class="bar" style="height:27%"></div><div class="bar" style="height:100%"></div>
+            </div>
+          </div>
+          <div class="dash-section">
+            <h4>Scans Recentes</h4>
+            <table class="dash-table">
+              <thead><tr><th>Alvo</th><th>Ferramenta</th><th>Status</th><th>Vulns</th><th>Data</th></tr></thead>
+              <tbody>
+                <tr><td>dvwa.local</td><td>nuclei</td><td><span class="badge-status badge-rodando">rodando</span></td><td>-</td><td>26/09 14:32</td></tr>
+                <tr><td>juiceshop.local</td><td>sqlmap</td><td><span class="badge-status badge-concluido">concluido</span></td><td>7</td><td>26/09 13:15</td></tr>
+                <tr><td>webgoat.local</td><td>nmap</td><td><span class="badge-status badge-concluido">concluido</span></td><td>3</td><td>26/09 11:40</td></tr>
+                <tr><td>dvwa.local</td><td>nikto</td><td><span class="badge-status badge-concluido">concluido</span></td><td>12</td><td>25/09 22:08</td></tr>
+                <tr><td>juiceshop.local</td><td>ffuf</td><td><span class="badge-status badge-erro">erro</span></td><td>0</td><td>25/09 19:55</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 3. NOVO SCAN                           -->
+<!-- ═══════════════════════════════════════ -->
+<div class="screen-section" id="s3">
+  <div class="screen-header">Tela 3 — Novo Scan</div>
+  <div class="screen-body">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-logo"><h1>SecuForge Labs</h1><p>Bug Bounty Toolkit</p></div>
+        <div class="nav-item"><span class="icon">&#128202;</span> <span>Dashboard</span></div>
+        <div class="nav-item active"><span class="icon">+</span> <span>Novo Scan</span></div>
+        <div class="nav-item"><span class="icon">&#128203;</span> <span>Scans</span></div>
+        <div class="nav-item"><span class="icon">&#128421;</span> <span>Terminal</span></div>
+        <div class="nav-item"><span class="icon">&#128295;</span> <span>Ferramentas</span></div>
+        <div class="nav-item"><span class="icon">&#9889;</span> <span>Multi-alvo</span></div>
+        <div class="nav-item"><span class="icon">&#128336;</span> <span>Agendamentos</span></div>
+        <div class="nav-item"><span class="icon">&#127760;</span> <span>OSINT</span></div>
+        <div class="sidebar-footer">v3.0 · 27 ferramentas</div>
+      </aside>
+      <main class="main">
+        <div class="topbar"><h2>Novo Scan</h2><span class="badge">localhost:8080</span></div>
+        <div class="content">
+          <div class="scan-form">
+            <h3>&#127919; Iniciar Scan</h3>
+            <div class="form-row">
+              <div class="form-group" style="flex:2"><label>Alvo</label><input type="text" placeholder="alvo.com ou https://alvo.com/api/" /></div>
+              <div class="form-group"><label>Ferramenta</label>
+                <select>
+                  <optgroup label="Recon"><option>nmap</option><option>masscan</option><option>rustscan</option><option>subfinder</option><option>amass</option><option>httpx</option><option>ffuf</option><option>gobuster</option><option>dirsearch</option><option>wfuzz</option><option>waybackurls</option><option>gau</option><option>dnsrecon</option><option>fierce</option></optgroup>
+                  <optgroup label="Vuln Scanning"><option>nuclei</option><option>nikto</option><option>whatweb</option><option>wpscan</option><option>testssl.sh</option><option>sslscan</option></optgroup>
+                  <optgroup label="Exploit"><option>sqlmap</option><option>commix</option><option>xsstrike</option><option>dalfox</option></optgroup>
+                  <optgroup label="Brute Force"><option>hydra</option><option>john</option><option>hashcat</option></optgroup>
+                  <optgroup label="Network"><option>tshark</option><option>enum4linux</option></optgroup>
+                </select>
+              </div>
+            </div>
+            <div class="form-row" style="margin-top:10px">
+              <div class="form-group"><label>Modo</label><select><option>&#9889; Rapido</option><option>&#128269; Completo</option></select></div>
+            </div>
+            <div style="margin-top:14px"><span class="btn btn-primary">Iniciar Scan</span></div>
+            <div class="warn-box">&#9888;&#65039; Use APENAS em alvos com autorizacao escrita. Art. 154-A CP (Lei 12.737/2012).</div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 4. SCANS                               -->
+<!-- ═══════════════════════════════════════ -->
+<div class="screen-section" id="s4">
+  <div class="screen-header">Tela 4 — Historico de Scans</div>
+  <div class="screen-body">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-logo"><h1>SecuForge Labs</h1><p>Bug Bounty Toolkit</p></div>
+        <div class="nav-item"><span class="icon">&#128202;</span> <span>Dashboard</span></div>
+        <div class="nav-item"><span class="icon">+</span> <span>Novo Scan</span></div>
+        <div class="nav-item active"><span class="icon">&#128203;</span> <span>Scans</span></div>
+        <div class="nav-item"><span class="icon">&#128421;</span> <span>Terminal</span></div>
+        <div class="nav-item"><span class="icon">&#128295;</span> <span>Ferramentas</span></div>
+        <div class="nav-item"><span class="icon">&#9889;</span> <span>Multi-alvo</span></div>
+        <div class="nav-item"><span class="icon">&#128336;</span> <span>Agendamentos</span></div>
+        <div class="nav-item"><span class="icon">&#127760;</span> <span>OSINT</span></div>
+        <div class="sidebar-footer">v3.0 · 27 ferramentas</div>
+      </aside>
+      <main class="main">
+        <div class="topbar"><h2>Historico de Scans</h2><span class="badge">localhost:8080</span></div>
+        <div class="content">
+          <div class="scan-card"><span class="badge-status badge-rodando">rodando</span><div class="info"><div class="dominio">dvwa.local</div><div class="meta">sc_a7f3e1 | nuclei | completo | 26/09 14:32</div></div><span class="btn btn-ghost" style="font-size:11px;padding:4px 10px">Log</span></div>
+          <div class="scan-card"><span class="badge-status badge-concluido">concluido</span><div class="info"><div class="dominio">juiceshop.local</div><div class="meta">sc_b2d4c8 | sqlmap | rapido | 26/09 13:15 → 13:17</div></div><span class="btn btn-primary" style="font-size:11px;padding:4px 10px">Relatorio</span></div>
+          <div class="scan-card"><span class="badge-status badge-concluido">concluido</span><div class="info"><div class="dominio">webgoat.local:8081</div><div class="meta">sc_c9e2a5 | nmap | completo | 26/09 11:40 → 11:42</div></div><span class="btn btn-primary" style="font-size:11px;padding:4px 10px">Relatorio</span></div>
+          <div class="scan-card"><span class="badge-status badge-erro">erro</span><div class="info"><div class="dominio">juiceshop.local</div><div class="meta">sc_d1f7b3 | ffuf | rapido | 25/09 19:55</div></div></div>
+          <div class="scan-card"><span class="badge-status badge-concluido">concluido</span><div class="info"><div class="dominio">dvwa.local</div><div class="meta">sc_e4a9d2 | nikto | completo | 25/09 22:08 → 22:14</div></div><span class="btn btn-primary" style="font-size:11px;padding:4px 10px">Relatorio</span></div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 5. TERMINAL                            -->
+<!-- ═══════════════════════════════════════ -->
+<div class="screen-section" id="s5">
+  <div class="screen-header">Tela 5 — Terminal (SSE real-time)</div>
+  <div class="screen-body">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-logo"><h1>SecuForge Labs</h1><p>Bug Bounty Toolkit</p></div>
+        <div class="nav-item"><span class="icon">&#128202;</span> <span>Dashboard</span></div>
+        <div class="nav-item"><span class="icon">+</span> <span>Novo Scan</span></div>
+        <div class="nav-item"><span class="icon">&#128203;</span> <span>Scans</span></div>
+        <div class="nav-item active"><span class="icon">&#128421;</span> <span>Terminal</span></div>
+        <div class="nav-item"><span class="icon">&#128295;</span> <span>Ferramentas</span></div>
+        <div class="nav-item"><span class="icon">&#9889;</span> <span>Multi-alvo</span></div>
+        <div class="nav-item"><span class="icon">&#128336;</span> <span>Agendamentos</span></div>
+        <div class="nav-item"><span class="icon">&#127760;</span> <span>OSINT</span></div>
+        <div class="sidebar-footer">v3.0 · 27 ferramentas</div>
+      </aside>
+      <main class="main">
+        <div class="topbar"><h2>Terminal</h2><span class="badge">localhost:8080</span></div>
+        <div class="content">
+          <div class="terminal-wrap">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span style="background:#e74c3c"></span><span style="background:#f39c12"></span><span style="background:#27ae60"></span></div>
+              <span style="color:var(--muted)">scan sc_a7f3e1 — dvwa.local</span>
+            </div>
+            <div class="terminal-body">
+              <div class="log-info">[*] Iniciando nuclei em dvwa.local (modo: completo)</div>
+              <div class="log-plain">[*] Carregando templates: /root/.local/share/nuclei-templates</div>
+              <div class="log-plain">[*] Templates carregados: 7842 (community: 6291, custom: 0)</div>
+              <div class="log-info">[->] Alvo: http://dvwa.local:8082</div>
+              <div class="log-ok">[v] [http-missing-security-headers:x-frame-options] http://dvwa.local:8082</div>
+              <div class="log-ok">[v] [http-missing-security-headers:x-content-type-options] http://dvwa.local:8082</div>
+              <div class="log-warn">[!] [cve-2021-41773] http://dvwa.local:8082/cgi-bin/.%2e/.%2e/etc/passwd</div>
+              <div class="log-ok">[v] [apache-detect] http://dvwa.local:8082 [Apache/2.4.25]</div>
+              <div class="log-warn">[!] [php-errors] http://dvwa.local:8082/vulnerabilities/sqli/</div>
+              <div class="log-ok">[v] [robots-txt-endpoint] http://dvwa.local:8082/robots.txt</div>
+              <div class="log-error">[x] [critical] [cve-2017-5638] http://dvwa.local:8082/struts2-showcase/</div>
+              <div class="log-ok">[v] [tech-detect:php] http://dvwa.local:8082</div>
+              <div class="log-info">[*] Encontradas 8 vulnerabilidades ate agora...</div>
+              <div class="log-warn">[!] [exposed-panels:phpmyadmin] http://dvwa.local:8082/phpmyadmin/</div>
+              <div class="log-ok">[v] [default-login:admin:password] http://dvwa.local:8082/login.php</div>
+              <div class="log-info">[*] Progresso: 67% dos templates executados</div>
+              <div class="log-plain" style="opacity:.5">&#9608; processando...</div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 6. FERRAMENTAS                         -->
+<!-- ═══════════════════════════════════════ -->
+<div class="screen-section" id="s6">
+  <div class="screen-header">Tela 6 — Ferramentas (27 instaladas)</div>
+  <div class="screen-body">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-logo"><h1>SecuForge Labs</h1><p>Bug Bounty Toolkit</p></div>
+        <div class="nav-item"><span class="icon">&#128202;</span> <span>Dashboard</span></div>
+        <div class="nav-item"><span class="icon">+</span> <span>Novo Scan</span></div>
+        <div class="nav-item"><span class="icon">&#128203;</span> <span>Scans</span></div>
+        <div class="nav-item"><span class="icon">&#128421;</span> <span>Terminal</span></div>
+        <div class="nav-item active"><span class="icon">&#128295;</span> <span>Ferramentas</span></div>
+        <div class="nav-item"><span class="icon">&#9889;</span> <span>Multi-alvo</span></div>
+        <div class="nav-item"><span class="icon">&#128336;</span> <span>Agendamentos</span></div>
+        <div class="nav-item"><span class="icon">&#127760;</span> <span>OSINT</span></div>
+        <div class="sidebar-footer">v3.0 · 27 ferramentas</div>
+      </aside>
+      <main class="main">
+        <div class="topbar"><h2>Ferramentas</h2><span class="badge">localhost:8080</span></div>
+        <div class="content">
+          <div class="tools-grid">
+            <div class="cat-header">Recon &amp; Enumeracao (14)</div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> nmap</div><div class="tver">7.93</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> masscan</div><div class="tver">1.3.2</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> rustscan</div><div class="tver">2.1.1</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> subfinder</div><div class="tver">v2.6.6</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> httpx</div><div class="tver">v1.6.8</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> amass</div><div class="tver">v4.2.0</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> ffuf</div><div class="tver">v2.1.0</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> gobuster</div><div class="tver">v3.6.0</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> dirsearch</div><div class="tver">0.4.3</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> wfuzz</div><div class="tver">3.1.0</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> waybackurls</div><div class="tver">0.1.0</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> gau</div><div class="tver">v2.2.3</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> dnsrecon</div><div class="tver">1.1.5</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> fierce</div><div class="tver">1.5.0</div></div>
+            <div class="cat-header">Vulnerability Scanning (6)</div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> nuclei</div><div class="tver">v3.3.5</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> nikto</div><div class="tver">2.1.6</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> whatweb</div><div class="tver">0.5.5</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> wpscan</div><div class="tver">3.8.25</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> testssl.sh</div><div class="tver">3.2</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> sslscan</div><div class="tver">2.0.15</div></div>
+            <div class="cat-header">Exploit &amp; Injection (4)</div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> sqlmap</div><div class="tver">1.8</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> commix</div><div class="tver">3.9</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> xsstrike</div><div class="tver">3.1.5</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> dalfox</div><div class="tver">v2.9.3</div></div>
+            <div class="cat-header">Brute Force &amp; Cracking (3)</div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> hydra</div><div class="tver">9.4</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> john</div><div class="tver">1.9.0-jumbo</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> hashcat</div><div class="tver">6.2.6</div></div>
+            <div class="cat-header">Network Analysis (2)</div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> tshark</div><div class="tver">4.0.6</div></div>
+            <div class="tool-card"><div class="tname"><span class="dot-ok">&#9679;</span> enum4linux</div><div class="tver">0.9.1</div></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 7. MULTI-ALVO                          -->
+<!-- ═══════════════════════════════════════ -->
+<div class="screen-section" id="s7">
+  <div class="screen-header">Tela 7 — Multi-alvo (Batch)</div>
+  <div class="screen-body">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-logo"><h1>SecuForge Labs</h1><p>Bug Bounty Toolkit</p></div>
+        <div class="nav-item"><span class="icon">&#128202;</span> <span>Dashboard</span></div>
+        <div class="nav-item"><span class="icon">+</span> <span>Novo Scan</span></div>
+        <div class="nav-item"><span class="icon">&#128203;</span> <span>Scans</span></div>
+        <div class="nav-item"><span class="icon">&#128421;</span> <span>Terminal</span></div>
+        <div class="nav-item"><span class="icon">&#128295;</span> <span>Ferramentas</span></div>
+        <div class="nav-item active"><span class="icon">&#9889;</span> <span>Multi-alvo</span></div>
+        <div class="nav-item"><span class="icon">&#128336;</span> <span>Agendamentos</span></div>
+        <div class="nav-item"><span class="icon">&#127760;</span> <span>OSINT</span></div>
+        <div class="sidebar-footer">v3.0 · 27 ferramentas</div>
+      </aside>
+      <main class="main">
+        <div class="topbar"><h2>Multi-alvo (Batch)</h2><span class="badge">localhost:8080</span></div>
+        <div class="content">
+          <div class="scan-form">
+            <h3>&#9889; Scan em multiplos alvos</h3>
+            <div class="form-group" style="margin-bottom:10px"><label>Alvos (um por linha)</label>
+              <textarea rows="4" style="resize:vertical" placeholder="alvo1.com&#10;alvo2.com">dvwa.local
+juiceshop.local
+webgoat.local:8081</textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Ferramenta</label><select><option>nuclei</option><option>nmap</option><option>ffuf</option></select></div>
+              <div class="form-group"><label>Modo</label><select><option>Rapido</option><option>Completo</option></select></div>
+              <div class="form-group"><label>Paralelos</label><select><option>2</option><option selected>3</option><option>5</option></select></div>
+            </div>
+            <div style="margin-top:12px"><span class="btn btn-primary">Iniciar batch</span></div>
+            <div class="warn-box">&#9888;&#65039; So alvos com autorizacao escrita. Art. 154-A CP.</div>
+          </div>
+          <div style="margin-top:16px">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Batches recentes</div>
+            <div class="scan-card"><span class="badge-status badge-concluido">concluido</span><div class="info"><div class="dominio">dvwa.local, juiceshop.local, webgoat.local</div><div class="meta">3 alvos | rapido | 3 paralelos | 25/09 18:30</div></div></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 8. AGENDAMENTOS                        -->
+<!-- ═══════════════════════════════════════ -->
+<div class="screen-section" id="s8">
+  <div class="screen-header">Tela 8 — Agendamentos</div>
+  <div class="screen-body">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-logo"><h1>SecuForge Labs</h1><p>Bug Bounty Toolkit</p></div>
+        <div class="nav-item"><span class="icon">&#128202;</span> <span>Dashboard</span></div>
+        <div class="nav-item"><span class="icon">+</span> <span>Novo Scan</span></div>
+        <div class="nav-item"><span class="icon">&#128203;</span> <span>Scans</span></div>
+        <div class="nav-item"><span class="icon">&#128421;</span> <span>Terminal</span></div>
+        <div class="nav-item"><span class="icon">&#128295;</span> <span>Ferramentas</span></div>
+        <div class="nav-item"><span class="icon">&#9889;</span> <span>Multi-alvo</span></div>
+        <div class="nav-item active"><span class="icon">&#128336;</span> <span>Agendamentos</span></div>
+        <div class="nav-item"><span class="icon">&#127760;</span> <span>OSINT</span></div>
+        <div class="sidebar-footer">v3.0 · 27 ferramentas</div>
+      </aside>
+      <main class="main">
+        <div class="topbar"><h2>Agendamentos</h2><span class="badge">localhost:8080</span></div>
+        <div class="content">
+          <div class="scan-form" style="margin-bottom:16px">
+            <h3>&#128336; Agendar scan recorrente</h3>
+            <div class="form-row">
+              <div class="form-group" style="flex:2"><label>Alvo</label><input placeholder="alvo.com" /></div>
+              <div class="form-group"><label>Modo</label><select><option>Rapido</option><option>Completo</option></select></div>
+            </div>
+            <div class="form-row" style="margin-top:8px">
+              <div class="form-group" style="flex:2"><label>Expressao cron</label><input placeholder="0 9 * * 1" /></div>
+              <div class="form-group"><label>Nome</label><input placeholder="Opcional" /></div>
+            </div>
+            <div style="margin-top:4px;font-size:10px;color:var(--muted)">
+              Ex: <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-size:9px">0 9 * * 1</code> seg 9h
+              <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-size:9px">0 */6 * * *</code> 6h em 6h
+              <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-size:9px">0 8 * * *</code> diario 8h
+            </div>
+            <div style="margin-top:12px"><span class="btn btn-primary">Agendar</span></div>
+          </div>
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Agendamentos ativos</div>
+          <div class="scan-card"><span class="badge-status badge-concluido">ativo</span><div class="info"><div class="dominio">Scan semanal DVWA</div><div class="meta">dvwa.local | completo | cron: 0 9 * * 1 | prox: 28/09 09:00</div></div></div>
+          <div class="scan-card"><span class="badge-status badge-concluido">ativo</span><div class="info"><div class="dominio">Juice Shop diario</div><div class="meta">juiceshop.local | rapido | cron: 0 8 * * * | prox: 27/09 08:00</div></div></div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 9. OSINT                               -->
+<!-- ═══════════════════════════════════════ -->
+<div class="screen-section" id="s9">
+  <div class="screen-header">Tela 9 — OSINT</div>
+  <div class="screen-body">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-logo"><h1>SecuForge Labs</h1><p>Bug Bounty Toolkit</p></div>
+        <div class="nav-item"><span class="icon">&#128202;</span> <span>Dashboard</span></div>
+        <div class="nav-item"><span class="icon">+</span> <span>Novo Scan</span></div>
+        <div class="nav-item"><span class="icon">&#128203;</span> <span>Scans</span></div>
+        <div class="nav-item"><span class="icon">&#128421;</span> <span>Terminal</span></div>
+        <div class="nav-item"><span class="icon">&#128295;</span> <span>Ferramentas</span></div>
+        <div class="nav-item"><span class="icon">&#9889;</span> <span>Multi-alvo</span></div>
+        <div class="nav-item"><span class="icon">&#128336;</span> <span>Agendamentos</span></div>
+        <div class="nav-item active"><span class="icon">&#127760;</span> <span>OSINT</span></div>
+        <div class="sidebar-footer">v3.0 · 27 ferramentas</div>
+      </aside>
+      <main class="main">
+        <div class="topbar"><h2>OSINT</h2><span class="badge">localhost:8080</span></div>
+        <div class="content">
+          <div class="scan-form">
+            <h3>&#127760; Coleta OSINT Passiva</h3>
+            <div class="form-group"><label>Dominio alvo</label><input value="dvwa.local" /></div>
+            <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+              <span class="btn btn-primary">Coletar OSINT</span>
+              <span class="btn btn-ghost">SpiderFoot (profundo)</span>
+              <span style="font-size:12px;color:var(--green)">Coleta finalizada.</span>
+            </div>
+            <div class="warn-box">&#9888;&#65039; OSINT passivo. Mantenha dentro do escopo autorizado.</div>
+          </div>
+          <div style="margin-top:16px">
+            <div class="scan-form" style="max-width:100%">
+              <h3 style="color:var(--cyan)">Resultados OSINT — dvwa.local</h3>
+              <p style="color:var(--muted);font-size:12px;margin-bottom:10px">4 subdominios | 2 e-mails</p>
+              <label>Subdominios</label>
+              <pre style="background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:8px;font-size:11px;color:var(--text);margin-bottom:10px">api.dvwa.local
+admin.dvwa.local
+staging.dvwa.local
+dev.dvwa.local</pre>
+              <label>E-mails</label>
+              <pre style="background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:8px;font-size:11px;color:var(--text)">admin@dvwa.local
+webmaster@dvwa.local</pre>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
