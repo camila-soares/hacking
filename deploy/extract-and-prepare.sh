@@ -42,5 +42,4 @@ chmod +x "$TARGET_DIR/deploy.sh"
 
 log "Pronto. Próximos passos:"
 echo "  cd bb-toolkit"
-echo "  unzip bb-toolkit"
 
