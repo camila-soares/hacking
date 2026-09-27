@@ -1,0 +1,7 @@
+flask>=3.0
+gunicorn>=21.2
+flask-limiter>=3.5
+WeasyPrint>=60.0
+croniter>=2.0
+requests>=2.31
+dnspython>=2.4

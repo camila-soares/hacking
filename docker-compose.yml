@@ -1,0 +1,76 @@
+# ============================================================
+#  Bug Bounty Toolkit — Docker / Podman Compose
+#  (com serviço OSINT opcional: SpiderFoot)
+#
+#  Uso com Docker:
+#    docker compose up --build                          # toolkit web (8080)
+#    docker compose --profile osint up -d spiderfoot    # sobe o SpiderFoot
+#
+#  Uso com Podman:
+#    podman compose up --build
+#    podman compose --profile osint up -d spiderfoot
+#    # ou com podman-compose:
+#    podman-compose up --build
+#
+#  Build manual (Podman):
+#    podman build -t bug-bounty-toolkit:latest .
+#    podman run -d -p 8080:8080 --name bb-toolkit bug-bounty-toolkit:latest
+# ============================================================
+
+services:
+  toolkit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: bug-bounty-toolkit:latest
+    container_name: bb-toolkit
+    ports:
+      - "8080:8080"       # interface web → http://localhost:8080
+    volumes:
+      - ./resultados:/app/resultados
+      - nuclei-templates:/root/.local/share/nuclei-templates
+      # - ~/SecLists:/root/SecLists
+    environment:
+      - TZ=America/Recife
+      - FLASK_ENV=production
+      - RESULTADOS_DIR=/app/resultados
+      # host interno do SpiderFoot (usado por spiderfoot_client.py)
+      - SPIDERFOOT_URL=http://spiderfoot:5001
+      # chaves opcionais de OSINT — defina no .env, nunca em texto aqui
+      # - SHODAN_API_KEY=${SHODAN_API_KEY}
+      # - SECURITYTRAILS_API_KEY=${SECURITYTRAILS_API_KEY}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ── OSINT: SpiderFoot como serviço opcional ──────────────────
+  # Sobe só quando quiser:
+  #   docker compose --profile osint up -d spiderfoot
+  #   podman compose --profile osint up -d spiderfoot
+  # O host interno é "spiderfoot" — é o que SPIDERFOOT_URL espera.
+  spiderfoot:
+    image: ghcr.io/poppopjmp/spiderfoot:latest
+    container_name: bb-spiderfoot
+    ports:
+      - "5001:5001"
+    profiles: ["osint"]
+    restart: unless-stopped
+    volumes:
+      - spiderfoot-data:/var/lib/spiderfoot
+
+volumes:
+  nuclei-templates:
+    name: bb-nuclei-templates
+  spiderfoot-data:
+    name: bb-spiderfoot-data
